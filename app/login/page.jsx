@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ref, get } from "firebase/database";
-import { db } from "../lib/firebase";
 import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,24 +14,26 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      const snapshot = await get(ref(db, "users/" + name));
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("name", name)
+        .single();
 
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-
-        if (data.password === password) {
-          alert("ورود موفق");
-
-          router.push("/dashboard");
-        } else {
-          alert("رمز اشتباهه");
-        }
-      } else {
+      if (error || !data) {
         alert("کاربر پیدا نشد");
+        return;
+      }
+
+      if (data.password === password) {
+        alert("ورود موفق");
+        router.push("/dashboard");
+      } else {
+        alert("رمز اشتباهه");
       }
     } catch (error) {
       console.log(error);
-      alert("خطا");
+      alert("خطا در ورود");
     }
   };
 
@@ -58,12 +59,7 @@ export default function LoginPage() {
           gap: "10px",
         }}
       >
-        <h1
-          style={{
-            color: "white",
-            textAlign: "center",
-          }}
-        >
+        <h1 style={{ color: "white", textAlign: "center" }}>
           ورود
         </h1>
 
