@@ -5,8 +5,14 @@
   --foreground: #ffffff;
 }
 
+/* مهم برای موبایل */
+* {
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
+  width: 100%;
 }
 
 body {
@@ -15,10 +21,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
+
+  /* مهم‌ترین خط برای مشکل تو */
+  width: 100%;
   overflow-x: hidden;
 }
 
-
+/* جلوگیری از بیرون زدن هر چیزی */
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
 
 /* ================= انیمیشن ها ================= */
 
@@ -27,7 +40,6 @@ body {
     opacity: 0;
     transform: translateY(40px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -38,12 +50,10 @@ body {
   animation: fadeUp 1s ease;
 }
 
-
 @keyframes fade {
   from {
     opacity: 0;
   }
-
   to {
     opacity: 1;
   }
@@ -53,12 +63,10 @@ body {
   animation: fade 1.5s ease;
 }
 
-
-
 /* ================= اسکرول بار ================= */
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -72,4 +80,22 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #666;
+}
+
+/* ================= مهم: ریسپانسیو ================= */
+
+/* موبایل */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 10px;
+  }
+}
+
+/* خیلی مهم برای جلوگیری از overflow */
+.no-scroll-x {
+  overflow-x: hidden;
 }
