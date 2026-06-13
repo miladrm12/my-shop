@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
 import Link from "next/link";
 
-
 type Product = {
   id:string;
   name:string;
@@ -15,35 +14,28 @@ type Product = {
 };
 
 
-
 export default function Home(){
 
 const {cart}=useCart();
-
 
 const [products,setProducts]=useState<Product[]>([]);
 const [categories,setCategories]=useState<any[]>([]);
 const [selectedCategory,setSelectedCategory]=useState<string|null>(null);
 const [loading,setLoading]=useState(true);
 
+const [support,setSupport]=useState(false);
 
 
 useEffect(()=>{
 
-
 async function load(){
 
-
-const {data:productData,error}=await supabase
+const {data:productsData}=await supabase
 .from("products")
 .select("*");
 
 
-if(error){
-console.log(error);
-}else{
-setProducts(productData || []);
-}
+setProducts(productsData || []);
 
 
 
@@ -54,19 +46,13 @@ const {data:catData}=await supabase
 
 setCategories(catData || []);
 
-
-
 setLoading(false);
-
 
 }
 
-
 load();
 
-
 },[]);
-
 
 
 
@@ -80,143 +66,65 @@ products;
 
 
 
-
-
 return (
 
-<main
-className="
+<main className="
 min-h-screen
 bg-black
 text-white
 pt-24
-overflow-x-hidden
-"
->
-
+">
 
 
 {/* HEADER */}
 
-<header
-className="
+<header className="
 fixed
 top-0
-left-0
 w-full
 z-50
 bg-black/80
 backdrop-blur-xl
 border-b
 border-zinc-800
-"
->
+">
 
 
-<div
-className="
+<div className="
 max-w-7xl
 mx-auto
-px-4
+px-5
 py-4
 flex
-items-center
 justify-between
-gap-3
-"
->
+items-center
+">
 
 
-<h1
-className="
-text-xl
-md:text-3xl
+<h1 className="
+text-3xl
 font-black
-"
->
+tracking-widest
+">
 NARCISS
 </h1>
 
 
-
-<div
-className="
-flex
-gap-2
-items-center
-"
->
-
-
-<Link
-href="/register"
-className="
-hidden
-sm:block
-bg-white
-text-black
-px-4
-py-2
-rounded-xl
-font-bold
-text-sm
-"
->
-ثبت نام
-</Link>
-
-
-
-<Link
-href="/tracking"
-className="
-hidden
-md:block
-bg-zinc-800
-px-4
-py-2
-rounded-xl
-font-bold
-text-sm
-"
->
-پیگیری
-</Link>
-
-
+<div className="flex gap-3">
 
 
 <Link
 href="/cart"
 className="
 bg-red-600
-px-4
-py-2
-rounded-xl
+px-5
+py-3
+rounded-2xl
 font-bold
-flex
-gap-2
-items-center
 "
 >
-
-🛒
-
-<span
-className="
-bg-white
-text-black
-rounded-full
-px-2
-text-xs
-"
->
-{cart.length}
-</span>
-
-
+🛒 {cart.length}
 </Link>
-
 
 
 </div>
@@ -234,51 +142,39 @@ text-xs
 {/* HERO */}
 
 
-<section
-className="
+<section className="
 text-center
+py-28
 px-5
-py-24
-"
->
+">
 
 
-<p
-className="
+<p className="
 text-red-500
-tracking-[4px]
-mb-5
-"
->
-NEW COLLECTION
+tracking-[5px]
+">
+NEW COLLECTION 2026
 </p>
 
 
-
-<h2
-className="
-text-4xl
-md:text-7xl
+<h2 className="
+text-6xl
 font-black
-leading-tight
-"
->
-استایل جدید
-<br/>
-نسل آینده
+mt-5
+">
+
+NARCISS
+
 </h2>
 
 
-
-<p
-className="
+<p className="
 text-zinc-400
 mt-5
-"
->
-خاص بپوش، متفاوت دیده شو
+text-xl
+">
+Luxury Street Fashion
 </p>
-
 
 
 </section>
@@ -288,72 +184,68 @@ mt-5
 
 
 
+
 {/* CATEGORY */}
 
 
-<section
-className="
-px-4
-"
->
+
+<section className="px-5">
 
 
-<div
-className="
+<h2 className="
+text-3xl
+font-black
+mb-5
+">
+دسته بندی
+</h2>
+
+
+<div className="
 flex
 gap-3
 overflow-x-auto
 pb-5
-"
->
-
-
-<button
-onClick={()=>setSelectedCategory(null)}
-className="
-bg-zinc-800
-px-5
-py-3
-rounded-full
-whitespace-nowrap
-"
->
-همه
-</button>
-
-
+">
 
 
 {
-categories.map(cat=>(
+[
+"کفش",
+"لباس",
+"شلوار",
+"اکسسوری",
+"بدلیجات ست",
+"هودی",
+"کاپشن",
+"کالکشن"
+].map((x)=>(
 
 
 <button
 
-key={cat.id}
-
-onClick={()=>setSelectedCategory(cat.id)}
+key={x}
 
 className="
-bg-zinc-800
-px-5
+bg-zinc-900
+border
+border-zinc-700
+px-6
 py-3
 rounded-full
-whitespace-nowrap
 hover:bg-red-600
 transition
 "
-
 >
 
-{cat.name}
+{x}
 
 </button>
 
 
 ))
-}
 
+}
 
 
 </div>
@@ -371,54 +263,47 @@ transition
 
 
 
-<section
-className="
-px-4
+<section className="
+px-5
 py-10
-"
->
+">
 
 
-<h2
-className="
-text-3xl
+<h2 className="
+text-4xl
 font-black
-mb-8
 text-center
-"
->
+mb-10
+">
 محصولات
 </h2>
 
 
 
-<div
-className="
-grid
-grid-cols-2
-md:grid-cols-3
-gap-4
-"
->
-
-
-
 {
-
 loading ?
 
-<p>
+<p className="text-center">
 درحال بارگذاری...
 </p>
 
 
 :
 
+<div className="
+grid
+grid-cols-2
+md:grid-cols-3
+gap-5
+">
+
+
+{
 filteredProducts.map(product=>(
 
 
-
 <div
+
 key={product.id}
 
 className="
@@ -427,11 +312,9 @@ rounded-3xl
 overflow-hidden
 border
 border-zinc-800
-hover:scale-[1.03]
+hover:scale-105
 transition
-"
->
-
+">
 
 
 <img
@@ -440,53 +323,34 @@ src={product.image}
 
 className="
 w-full
-h-52
-md:h-96
+h-72
 object-cover
 "
-
 />
 
 
 
-<div
-className="
-p-4
-"
->
+<div className="p-5">
 
 
-<h3
-className="
-font-bold
-text-sm
-md:text-xl
-"
->
+<h3 className="
+font-black
+text-xl
+">
 {product.name}
 </h3>
 
 
 
-
-<div
-className="
-flex
-justify-between
-items-center
-mt-4
-"
->
-
-
-<span
-className="
+<p className="
 text-red-500
-font-black
-"
->
-{product.price.toLocaleString()}
-</span>
+mt-3
+font-bold
+">
+
+{product.price.toLocaleString()} تومان
+
+</p>
 
 
 
@@ -495,29 +359,25 @@ font-black
 href={`/products/${product.id}`}
 
 className="
+block
+mt-5
 bg-white
 text-black
-px-3
-py-2
+text-center
+py-3
 rounded-xl
-text-xs
 font-bold
-"
->
-دیدن
+">
+
+مشاهده
+
 </Link>
 
 
-
-</div>
-
-
-
 </div>
 
 
 </div>
-
 
 
 ))
@@ -525,9 +385,10 @@ font-bold
 }
 
 
-
-
 </div>
+
+
+}
 
 
 </section>
@@ -537,34 +398,72 @@ font-bold
 
 
 
-<footer
-className="
+
+{/* FOOTER */}
+
+
+<footer className="
 border-t
 border-zinc-800
-py-10
-text-center
 mt-20
-"
->
+py-12
+text-center
+">
 
-<h2
-className="
+
+<h2 className="
+text-3xl
 font-black
-text-2xl
-"
->
+">
 NARCISS
 </h2>
 
 
-<p
-className="
-text-zinc-500
-mt-3
-"
->
-© 2026
+
+<p className="text-zinc-400 mt-5">
+For communication
 </p>
+
+
+<p>
+📞 09228594815
+</p>
+
+
+<p>
+✉️ miladkamil18@gmail.com
+</p>
+
+
+
+<p className="
+mt-5
+text-zinc-500
+">
+
+Website Designer : Milad Kamali
+
+</p>
+
+
+
+<a
+
+href="https://t.me/"
+
+className="
+inline-block
+mt-5
+bg-blue-600
+px-8
+py-3
+rounded-xl
+font-bold
+">
+
+Telegram
+
+</a>
 
 
 </footer>
@@ -572,10 +471,127 @@ mt-3
 
 
 
+
+
+
+{/* SUPPORT BUTTON */}
+
+
+<button
+
+onClick={()=>setSupport(true)}
+
+className="
+fixed
+bottom-6
+right-6
+bg-red-600
+px-6
+py-4
+rounded-full
+font-black
+shadow-xl
+">
+
+پشتیبانی
+
+</button>
+
+
+
+
+
+{
+support &&
+
+
+<div className="
+fixed
+inset-0
+bg-black/70
+flex
+items-center
+justify-center
+z-[100]
+">
+
+
+<div className="
+bg-zinc-900
+p-8
+rounded-3xl
+w-96
+">
+
+
+<h2 className="
+text-2xl
+font-black
+mb-5
+">
+
+پشتیبانی نارسیس
+
+</h2>
+
+
+<input
+
+placeholder="شماره تماس شما"
+
+className="
+w-full
+bg-black
+p-4
+rounded-xl
+mb-4
+"
+/>
+
+
+<textarea
+
+placeholder="مشکل خود را بنویسید"
+
+className="
+w-full
+bg-black
+p-4
+rounded-xl
+mb-5
+"
+/>
+
+
+
+<button
+
+className="
+bg-red-600
+w-full
+py-3
+rounded-xl
+font-bold
+">
+
+ارسال
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+}
+
+
+
 </main>
 
 
 )
-
 
 }
