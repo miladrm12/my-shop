@@ -5,31 +5,43 @@ import { supabase } from "../../lib/supabase";
 
 
 type Order = {
-  id:string;
-  customer_name:string;
-  phone:string;
-  address:string;
-  total_price:number;
-  status:string;
-  tracking_code?:string;
+ id:string;
+ customer_name:string;
+ phone:string;
+ address:string;
+ total_price:number;
+ status:string;
+ tracking_code?:string;
+ created_at:string;
 };
 
 
-const statusText:any = {
-
-pending:"در انتظار تایید",
-
-confirmed:"تایید شده",
-
-preparing:"در حال آماده سازی",
-
-shipped:"ارسال شده",
-
-delivered:"تحویل داده شده",
-
-cancelled:"لغو شده"
-
-};
+const statuses = [
+ {
+  value:"pending",
+  label:"در انتظار تایید"
+ },
+ {
+  value:"confirmed",
+  label:"تایید شده"
+ },
+ {
+  value:"preparing",
+  label:"در حال آماده سازی"
+ },
+ {
+  value:"shipped",
+  label:"ارسال شده"
+ },
+ {
+  value:"delivered",
+  label:"تحویل داده شده"
+ },
+ {
+  value:"cancelled",
+  label:"لغو شده"
+ }
+];
 
 
 
@@ -40,24 +52,23 @@ const [orders,setOrders]=useState<Order[]>([]);
 const [loading,setLoading]=useState(true);
 
 
-async function fetchOrders(){
+
+async function getOrders(){
+
 
 setLoading(true);
 
 
 const {data,error}=await supabase
-
 .from("orders")
-
 .select("*")
-
 .order("created_at",{ascending:false});
-
 
 
 if(error){
 
 console.log(error);
+alert(error.message);
 
 return;
 
@@ -68,15 +79,14 @@ setOrders(data || []);
 
 setLoading(false);
 
+
 }
-
-
 
 
 
 useEffect(()=>{
 
-fetchOrders();
+getOrders();
 
 },[]);
 
@@ -84,23 +94,17 @@ fetchOrders();
 
 
 
-
-async function changeStatus(
+async function updateStatus(
 id:string,
 status:string
 ){
 
 
 const {error}=await supabase
-
 .from("orders")
-
 .update({
-
-status
-
+ status
 })
-
 .eq("id",id);
 
 
@@ -114,7 +118,8 @@ return;
 }
 
 
-fetchOrders();
+
+getOrders();
 
 
 }
@@ -124,14 +129,13 @@ fetchOrders();
 
 
 
+async function tracking(id:string){
 
-async function addTracking(
-id:string
-){
 
 const code = prompt(
 "کد رهگیری را وارد کنید"
 );
+
 
 
 if(!code)return;
@@ -139,17 +143,13 @@ if(!code)return;
 
 
 const {error}=await supabase
-
 .from("orders")
-
 .update({
 
 tracking_code:code,
-
 status:"shipped"
 
 })
-
 .eq("id",id);
 
 
@@ -157,15 +157,17 @@ status:"shipped"
 if(error){
 
 alert(error.message);
-
 return;
 
 }
+
 
 
 alert("کد رهگیری ثبت شد");
 
-fetchOrders();
+
+getOrders();
+
 
 
 }
@@ -174,21 +176,21 @@ fetchOrders();
 
 
 
+async function removeOrder(id:string){
 
 
-async function deleteOrder(id:string){
+const ok = confirm(
+"این سفارش حذف شود؟"
+);
 
 
-if(!confirm("حذف شود؟"))return;
+if(!ok)return;
 
 
 
 const {error}=await supabase
-
 .from("orders")
-
 .delete()
-
 .eq("id",id);
 
 
@@ -203,8 +205,7 @@ return;
 
 
 
-fetchOrders();
-
+getOrders();
 
 
 }
@@ -219,41 +220,42 @@ return (
 min-h-screen
 bg-black
 text-white
-p-10
+p-5
+md:p-10
 ">
 
 
 <h1 className="
-text-5xl
+text-4xl
 font-black
 mb-10
 ">
 
-مدیریت سفارشات
+پنل مدیریت سفارشات NARCISS
 
 </h1>
 
 
 
-{loading ? (
+
+{
+loading ?
 
 <p>
-در حال بارگذاری...
+درحال دریافت سفارشات...
 </p>
 
 
-):
+:
 
-orders.length===0?(
+orders.length===0 ?
 
 <p>
 سفارشی وجود ندارد
 </p>
 
 
-):
-
-(
+:
 
 
 <div className="
@@ -265,7 +267,6 @@ gap-6
 {
 
 orders.map(order=>(
-
 
 
 <div
@@ -287,30 +288,32 @@ shadow-xl
 
 <h2 className="
 text-2xl
-font-bold
-mb-4
+font-black
+mb-5
 ">
 
-{order.customer_name}
+سفارش #{order.id}
 
 </h2>
 
 
 
-<p className="text-zinc-400">
+<p>
+👤 مشتری:
+{order.customer_name}
+</p>
 
-شماره:
+
+<p>
+📞 شماره:
 {order.phone}
-
 </p>
 
 
 
-<p className="text-zinc-400">
-
-آدرس:
+<p>
+📍 آدرس:
 {order.address}
-
 </p>
 
 
@@ -323,37 +326,20 @@ mt-3
 ">
 
 {order.total_price.toLocaleString()}
-تومان
+ تومان
 
 </p>
 
 
 
 
+
 <div className="
-mt-5
+mt-6
 flex
 flex-wrap
 gap-3
-items-center
 ">
-
-
-
-<span className="
-bg-blue-600
-px-4
-py-2
-rounded-xl
-font-bold
-">
-
-{statusText[order.status] || order.status}
-
-</span>
-
-
-
 
 
 <select
@@ -361,66 +347,40 @@ font-bold
 value={order.status}
 
 onChange={(e)=>
-
-changeStatus(
+updateStatus(
 order.id,
 e.target.value
 )
-
 }
 
 className="
 bg-black
 border
 border-zinc-700
-px-4
-py-2
 rounded-xl
+px-4
+py-3
 "
 
 
 >
 
-<option value="pending">
 
-در انتظار تایید
+{
+statuses.map(s=>(
 
-</option>
+<option
+key={s.value}
+value={s.value}
+>
 
-
-<option value="confirmed">
-
-تایید شده
-
-</option>
-
-
-<option value="preparing">
-
-در حال آماده سازی
+{s.label}
 
 </option>
 
 
-<option value="shipped">
-
-ارسال شده
-
-</option>
-
-
-<option value="delivered">
-
-تحویل داده شده
-
-</option>
-
-
-<option value="cancelled">
-
-لغو شده
-
-</option>
+))
+}
 
 
 
@@ -429,23 +389,27 @@ rounded-xl
 
 
 
-
-
 <button
 
-onClick={()=>changeStatus(order.id,"confirmed")}
+onClick={()=>
+updateStatus(
+order.id,
+"confirmed"
+)
+
+}
 
 className="
 bg-green-600
 px-5
-py-2
+py-3
 rounded-xl
 font-bold
 "
 
 >
 
-تایید
+تایید سفارش
 
 </button>
 
@@ -456,19 +420,19 @@ font-bold
 
 <button
 
-onClick={()=>addTracking(order.id)}
+onClick={()=>tracking(order.id)}
 
 className="
 bg-purple-600
 px-5
-py-2
+py-3
 rounded-xl
 font-bold
 "
 
 >
 
-کد رهگیری
+ثبت کد رهگیری
 
 </button>
 
@@ -477,15 +441,14 @@ font-bold
 
 
 
-
 <button
 
-onClick={()=>deleteOrder(order.id)}
+onClick={()=>removeOrder(order.id)}
 
 className="
 bg-red-600
 px-5
-py-2
+py-3
 rounded-xl
 font-bold
 "
@@ -508,7 +471,7 @@ font-bold
 
 {
 
-order.tracking_code && (
+order.tracking_code &&
 
 <p className="
 mt-5
@@ -516,19 +479,17 @@ text-green-400
 font-bold
 ">
 
-کد رهگیری:
+🚚 کد رهگیری:
 {order.tracking_code}
 
 </p>
 
-)
 
 }
 
 
 
 </div>
-
 
 
 ))
@@ -539,14 +500,13 @@ font-bold
 </div>
 
 
-)}
 
+}
 
 
 </main>
 
 
 )
-
 
 }
